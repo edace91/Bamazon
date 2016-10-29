@@ -29,7 +29,7 @@ connection.query('SELECT * FROM Products', function(err, res) {
 
 var start = function() {
 	connection.query('SELECT * FROM Products', function(err, res) {
-		//console.log(res);
+		// console.log(res);
     	inquirer.prompt({
         	name: "itemId",
         	type: "input",
@@ -37,25 +37,24 @@ var start = function() {
     	}).then(function(answer) {
     		for (var i = 0; i < res.length; i++) {
             	if (res[i].id == answer.itemId) {
-                	var chosenItem = res[i].id;
-                	 console.log("You have chosen item " + chosenItem);
+                	var chosenItem = res[i];
+                    var selectedItem = i;
+                	 console.log("You have chosen item " + chosenItem.id);
                 	inquirer.prompt({
                    		name: "quantity",
                     	type: "input",
                     	message: "How many would you like to order?"
             		}).then(function(amount){
-                        console.log(chosenItem);
-                		if (res[chosenItem].StockQuantity > parseInt(amount.quantity)){
-
-                            var itemPrice = res[chosenItem].Price;
-
+                		if (res[selectedItem].StockQuantity > parseInt(amount.quantity)){
+                            //console.log("Stock Qty: " + res[selectedItem].StockQuantity);
+                            var itemPrice = res[selectedItem].Price;
                             console.log(itemPrice);
 
         					//update stock ti a new variable
-       						var newStock = res[chosenItem].StockQuantity - amount.quantity;
+       						var newStock = res[selectedItem].StockQuantity - parseInt(amount.quantity);
 
                             //query to database and change the stock amount.
-       						var updateStock = 'UPDATE Products SET StockQuantity =' + newStock + 'WHERE id =' + chosenItem;
+       						var updateStock = 'UPDATE Products SET StockQuantity =' + newStock + 'WHERE id =' + chosenItem.id;
                             
                             connection.query(updateStock, function(err,res){
                                 // the price of the item chosen * the answer quantity
@@ -67,14 +66,13 @@ var start = function() {
 
                             }) 
                     	} else {
-                        	console.log("Insufficient quantity! there is only " + res[chosenItem].StockQuantity + " in stock.");
+                        	console.log("Insufficient quantity! there is only " + res[selectedItem].StockQuantity + " in stock.");
                         	
                         	start();
                     	} 		
        				})
     			}
 			}
-            //console.log(i);
 		})
 	})
 }
