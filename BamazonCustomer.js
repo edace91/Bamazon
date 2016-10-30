@@ -37,7 +37,9 @@ var start = function() {
     	}).then(function(answer) {
     		for (var i = 0; i < res.length; i++) {
             	if (res[i].id == answer.itemId) {
+                    //item id in database table
                 	var chosenItem = res[i];
+                    //place in array 
                     var selectedItem = i;
                 	 console.log("You have chosen item " + chosenItem.id);
                 	inquirer.prompt({
@@ -54,17 +56,21 @@ var start = function() {
        						var newStock = res[selectedItem].StockQuantity - parseInt(amount.quantity);
 
                             //query to database and change the stock amount.
-       						var updateStock = 'UPDATE Products SET StockQuantity =' + newStock + 'WHERE id =' + chosenItem.id;
+       						
                             
-                            connection.query(updateStock, function(err,res){
+                            connection.query('UPDATE Products SET ? WHERE ?', [{
+                                StockQuantity : newStock
+                            },{
+                                id : chosenItem.id
+                            }],function(err,res){ 
                                 // the price of the item chosen * the answer quantity
                                 var customerTotal = amount.quantity * itemPrice;
 
                                 console.log("Order for " + amount.quantity + " was placed successfully!");
                                 console.log("Your total is " + customerTotal);
                                 start();
-
-                            }) 
+                            });
+                           
                     	} else {
                         	console.log("Insufficient quantity! there is only " + res[selectedItem].StockQuantity + " in stock.");
                         	
